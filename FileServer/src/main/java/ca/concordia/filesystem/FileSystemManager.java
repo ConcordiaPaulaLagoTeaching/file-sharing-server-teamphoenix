@@ -187,20 +187,8 @@ public class FileSystemManager {
                     break;
                 }
             }
-
             if (target == null) {
                 throw new Exception("ERROR: file " + filename + " does not exist");
-            }
-
-            // Free existing blocks
-            int currentNodeIndex = target.getFirstBlock();
-            while (currentNodeIndex != -1 && currentNodeIndex < MAXBLOCKS) {
-                FNode node = fnodes[currentNodeIndex];
-                if (node == null) break;
-                node.setBlockIndex(-1);
-                int next = node.getNext();
-                node.setNext(-1);
-                currentNodeIndex = next;
             }
 
             // Calculate number of blocks needed
@@ -209,21 +197,21 @@ public class FileSystemManager {
                 throw new Exception("ERROR: file too large");
             }
 
-            // Find free FNodes for allocation
-            java.util.List<Integer> allocatedNodes = new java.util.ArrayList<>();
-            for (int i = 0; i < MAXBLOCKS && allocatedNodes.size() < numBlocks; i++) {
+            // Find free FNodes before modifying anything
+            java.util.List<Integer> freeNodes = new java.util.ArrayList<>();
+            for (int i = 0; i < MAXBLOCKS && freeNodes.size() < numBlocks; i++) {
                 if (fnodes[i].getBlockIndex() < 0) { // free node
-                    allocatedNodes.add(i);
+                    freeNodes.add(i);
                 }
             }
-
-            if (allocatedNodes.size() < numBlocks) {
+            if (freeNodes.size() < numBlocks) {
                 throw new Exception("ERROR: not enough free blocks available");
             }
 
-            // Write file data block by block
-            for (int i = 0; i < allocatedNodes.size(); i++) {
-                int nodeIndex = allocatedNodes.get(i);
+            // Write file data to new blocks
+            for (int i = 0; i < freeNodes.size(); i++) {
+                int nodeIndex = freeNodes.get(i);
+
                 int start = i * BLOCK_SIZE;
                 int end = Math.min(start + BLOCK_SIZE, contents.length);
                 byte[] chunk = java.util.Arrays.copyOfRange(contents, start, end);
@@ -236,19 +224,40 @@ public class FileSystemManager {
                 channel.write(buf, dataOffset);
 
                 fnodes[nodeIndex].setBlockIndex(nodeIndex);
-                if (i < allocatedNodes.size() - 1) {
-                    fnodes[nodeIndex].setNext(allocatedNodes.get(i + 1));
+
+                if (i < freeNodes.size() - 1) {
+                    fnodes[nodeIndex].setNext(freeNodes.get(i + 1));
                 } else {
                     fnodes[nodeIndex].setNext(-1);
                 }
             }
 
-            // Update FEntry metadata
+            // Store old block chain (cleanup done later)
+            int oldFirst = target.getFirstBlock();
+
+            // Update file metadata
             target.setFilesize((short) contents.length);
-            target.setFirstBlock((short) (allocatedNodes.isEmpty() ? -1 : allocatedNodes.get(0)));
+            target.setFirstBlock(freeNodes.get(0).shortValue());
 
             // Persist metadata
             persistMetadata();
+
+            // Free old blocks
+            int oldIndex = oldFirst;
+            while (oldIndex != -1 && oldIndex < MAXBLOCKS) {
+                FNode node = fnodes[oldIndex];
+                if (node == null) break;
+
+                // Zero out old block data
+                long offset = calculateDataOffset(oldIndex);
+                ByteBuffer zero = ByteBuffer.allocate(BLOCK_SIZE);
+                channel.write(zero, offset);
+
+                int next = node.getNext();
+                node.setBlockIndex(-1);
+                node.setNext(-1);
+                oldIndex = next;
+            }
 
             System.out.println("SUCCESS: file written -> " + filename + " (" + contents.length + " bytes)");
 
