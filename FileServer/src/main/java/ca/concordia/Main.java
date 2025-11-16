@@ -15,23 +15,20 @@ public class Main {
     public static void main(String[] args) throws Exception {
         System.out.print("Hello and welcome!");
 
-        // totalSize = metadataSize + (MAXBLOCKS × BLOCKSIZE)
-        // MAXBLOCKS = 10
-        // BLOCKSIZE = 128
+            // initialisation from origin code
+            FileServer server = new FileServer(12345, "filesystem.dat", 10 * 128);
 
-        if (args.length != 3){
-            System.out.println("ERROR IN SERVER parameters- <port> <filename> <totalSize> ");
-            return;
-        }
+            // Start the file server
+            System.out.print("Please enter 1 of the following: \n");
+            System.out.print("CREATE <filename> \n");
+            System.out.print("READ <filename> \n");
+            System.out.print("DELETE <filename> \n");
+            System.out.print("WRITE <filename> <data> \n");
+            System.out.print("LIST \n");
+            System.out.print("QUIT \n");
 
-        int port = Integer.parseInt(args[0]);
-        String filename = args[1]; // filename
-        int totalsize = Integer.parseInt(args[2]);
 
-        // starting server
-        FileServer server = new FileServer(port, filename, totalsize);
-        server.start();
-
+            server.start();
 
 
     }

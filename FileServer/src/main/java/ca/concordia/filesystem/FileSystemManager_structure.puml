@@ -1,0 +1,184 @@
+@startuml
+
+/' diagram meta data start
+config=StructureConfiguration;
+{
+  "projectClassification": {
+    "searchMode": "OpenProject", // OpenProject, AllProjects
+    "includedProjects": "",
+    "pathEndKeywords": "*.impl",
+    "isClientPath": "",
+    "isClientName": "",
+    "isTestPath": "",
+    "isTestName": "",
+    "isMappingPath": "",
+    "isMappingName": "",
+    "isDataAccessPath": "",
+    "isDataAccessName": "",
+    "isDataStructurePath": "",
+    "isDataStructureName": "",
+    "isInterfaceStructuresPath": "",
+    "isInterfaceStructuresName": "",
+    "isEntryPointPath": "",
+    "isEntryPointName": "",
+    "treatFinalFieldsAsMandatory": false
+  },
+  "graphRestriction": {
+    "classPackageExcludeFilter": "",
+    "classPackageIncludeFilter": "",
+    "classNameExcludeFilter": "",
+    "classNameIncludeFilter": "",
+    "methodNameExcludeFilter": "",
+    "methodNameIncludeFilter": "",
+    "removeByInheritance": "", // inheritance/annotation based filtering is done in a second step
+    "removeByAnnotation": "",
+    "removeByClassPackage": "", // cleanup the graph after inheritance/annotation based filtering is done
+    "removeByClassName": "",
+    "cutMappings": false,
+    "cutEnum": true,
+    "cutTests": true,
+    "cutClient": true,
+    "cutDataAccess": true,
+    "cutInterfaceStructures": true,
+    "cutDataStructures": true,
+    "cutGetterAndSetter": true,
+    "cutConstructors": true
+  },
+  "graphTraversal": {
+    "forwardDepth": 3,
+    "backwardDepth": 3,
+    "classPackageExcludeFilter": "",
+    "classPackageIncludeFilter": "",
+    "classNameExcludeFilter": "",
+    "classNameIncludeFilter": "",
+    "methodNameExcludeFilter": "",
+    "methodNameIncludeFilter": "",
+    "hideMappings": false,
+    "hideDataStructures": false,
+    "hidePrivateMethods": true,
+    "hideInterfaceCalls": true, // indirection: implementation -> interface (is hidden) -> implementation
+    "onlyShowApplicationEntryPoints": false, // root node is included
+    "useMethodCallsForStructureDiagram": "ForwardOnly" // ForwardOnly, BothDirections, No
+  },
+  "details": {
+    "aggregation": "GroupByClass", // ByClass, GroupByClass, None
+    "showClassGenericTypes": true,
+    "showMethods": true,
+    "showMethodParameterNames": true,
+    "showMethodParameterTypes": true,
+    "showMethodReturnType": true,
+    "showPackageLevels": 2,
+    "showDetailedClassStructure": true
+  },
+  "rootClass": "ca.concordia.filesystem.FileSystemManager",
+  "extensionCallbackMethod": "" // qualified.class.name#methodName - signature: public static String method(String)
+}
+diagram meta data end '/
+
+
+
+digraph g {
+    rankdir="TB"
+    splines=polyline
+    
+
+'nodes 
+subgraph cluster_884464328 { 
+   	label=concordia
+	labeljust=l
+	fillcolor="#ececec"
+	style=filled
+   
+   subgraph cluster_1764204255 { 
+   	label=filesystem
+	labeljust=l
+	fillcolor="#d8d8d8"
+	style=filled
+   
+   FEntry506369177[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)FEntry</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   filename: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   filesize: short [1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   firstBlock: short [1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+FNode506369177[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)FNode</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   blockIndex: int [1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   next: int [1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+FileSystemManager2077329231[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)FileSystemManager</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   MAXBLOCKS: int [1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   MAXFILES: int [1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   channel: FileChannel [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   disk: RandomAccessFile [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   fnodes: FNode[] [0..*]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   inodeTable: FEntry[] [0..*]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   rwLock: ReentrantReadWriteLock [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >- calculateDataOffset(blockIndex: int): long</TD></TR>
+<TR><TD ALIGN="LEFT" >+ createFile(filename: String)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ deleteFile(filename: String)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ listFiles(): String[]</TD></TR>
+<TR><TD ALIGN="LEFT" >- persistMetadata()</TD></TR>
+<TR><TD ALIGN="LEFT" >+ readFile(filename: String): byte[]</TD></TR>
+<TR><TD ALIGN="LEFT" >+ writeFile(filename: String, contents: byte[])</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+} 
+
+subgraph cluster_64413881 { 
+   	label=server
+	labeljust=l
+	fillcolor="#d8d8d8"
+	style=filled
+   
+   FileServer2037956535[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)FileServer</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   fsManager: FileSystemManager [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   port: int [1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ start()</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+} 
+} 
+
+'edges    
+FileServer2037956535 -> FileSystemManager2077329231[label="fsManager
+[0..1]"];
+FileSystemManager2077329231 -> FEntry506369177[label="inodeTable
+[0..*]"];
+FileSystemManager2077329231 -> FNode506369177[label="fnodes
+[0..*]"];
+    
+}
+@enduml

@@ -43,8 +43,8 @@ public class FileSystemManager {
         this.channel = this.disk.getChannel();
 
         // Initialize constants
-        this.MAXFILES = 5;     // you can change later if you want
-        this.MAXBLOCKS = 10;   // same here
+        this.MAXFILES = 5;
+        this.MAXBLOCKS = 10;
 
         // Initialize metadata tables
         this.inodeTable = new FEntry[MAXFILES];
@@ -75,7 +75,6 @@ public class FileSystemManager {
                 throw new Exception("ERROR: filename too large");
             }
 
-            // Check if the file already exists
             for (int i = 0; i < MAXFILES; i++) {
                 FEntry entry = inodeTable[i];
                 if (entry != null && filename.equals(entry.getFilename())) {
@@ -110,7 +109,6 @@ public class FileSystemManager {
         }
     }
 
-    // deleteFile Implementation
     public void deleteFile(String filename) throws Exception {
         rwLock.writeLock().lock();
         try {

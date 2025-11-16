@@ -8,6 +8,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import static java.lang.System.out;
+
 public class FileServer {
 
     private final FileSystemManager fsManager;  // Shared filesystem manager
@@ -21,12 +23,12 @@ public class FileServer {
     public void start() {
         // Create listening socket
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server started. Listening on port " + port + "...");
+            out.println("Server started. Listening on port " + port + "...");
 
             // Accept clients forever
             while (true) {
                 Socket clientSocket = serverSocket.accept();    // Block until client connects
-                System.out.println("New client connected: " + clientSocket);
+                out.println("New client connected: " + clientSocket);
                 new Thread(new ClientHandler(clientSocket)).start();    // Start worker thread
             }
 
@@ -54,10 +56,12 @@ public class FileServer {
                     PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true)
             ) {
 
-                String line; // Holds client command
+                out.print("SELECTION: ");
+                String line ; // Holds client command
                 while ((line = reader.readLine()) != null) { // Read until disconnect
 
-                    System.out.println("Received from " + clientSocket + ": " + line); // Log
+                    out.println("Received from " + clientSocket + ": " + line); // Log
+
 
                     String[] parts = line.split(" ", 3); // Split into at most 3 parts
                     String command = parts[0].toUpperCase(); // Get command keyword
